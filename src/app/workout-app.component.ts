@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ZipcodeAreaComponent } from './zipcode-area/zipcode-area.component';
-import { ngSelectLocation, EmitterService } from './ng2-location/browser-location';
+import { ngSelectLocation, EmitterService } from './ng2-location/browser-location.component';
 
 
 @Component({

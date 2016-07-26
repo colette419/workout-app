@@ -1,4 +1,4 @@
-import {ngSelectLocation, EmitterService}   from './browser-location';
+import {ngSelectLocation, EmitterService}   from './browser-location.component';
 import {Injectable} from '@angular/core';
 import { Http, Headers } from '@angular/http';
 import { CORE_DIRECTIVES, FORM_DIRECTIVES } from '@angular/common';
@@ -55,15 +55,21 @@ export class nglocationService {
 
     displayLocation = (latitude,longitude) => {
 
-      this.http.get('http://maps.googleapis.com/maps/api/geocode/json?latlng='+latitude+','+longitude+'&sensor=true')
+      this.http.get('http://api.openweathermap.org/data/2.5/weather?lat='+latitude+'&lon='+longitude+'&APPID=b6dce928a24acdb9d91b6fb97272e546&units=metric')
         .subscribe(
           response => {
-
-              if(response.status == 200){
-                  let data = response.json();
-                  location['address'] =  data.results[0].formatted_address
-
-                  let city = data.results[0].address_components.reduce((city, value) => {
+        let data = response.json();
+          EmitterService.get("tempService").emit(data);
+      },
+        error => {
+        alert(error.text());
+      }
+      );
+              this.http.get('http://maps.googleapis.com/maps/api/geocode/json?latlng='+latitude+','+longitude+'&sensor=true')
+        .subscribe(
+          response2 => {
+            let data = response2.json();
+            let city = data.results[0].address_components.reduce((city, value) => {
                      if (value.types[0] == "locality") {
                            city = value.long_name;
                            location['city'] = city;
@@ -73,20 +79,75 @@ export class nglocationService {
                             location['postal_code'] = postal_code;
                         }
                     return city;
-                  }, '');
-              }
-              localStorage.setItem('location', JSON.stringify(location));
-              EmitterService.get("selectedCity").emit(location['city']);
-              EmitterService.get("zipcode").emit(location['postal_code']);
+                    }, ''); 
+            EmitterService.get("locationService").emit(city);
+          })
+        };
+
+      //         if(response.status == 200){
+      //             let data = response.json();
+      //             location['address'] =  data.results[0].formatted_address
+
+                  // let city = data.results[0].address_components.reduce((city, value) => {
+                  //    if (value.types[0] == "locality") {
+                  //          city = value.long_name;
+                  //          location['city'] = city;
+                  //     }
+                  //    if (value.types[0] == "postal_code") {
+                  //           let postal_code = value.long_name;
+                  //           location['postal_code'] = postal_code;
+                  //       }
+                  //   return city;
+                  // }, '');
+              // }
+      //         localStorage.setItem('location', JSON.stringify(location));
+      //         EmitterService.get("selectedCity").emit(location['city']);
 
 
 
-      },
-        error => {
-        alert(error.text());
-      }
-      );
-    };
+      // },
+    //     error => {
+    //     alert(error.text());
+    //   }
+    //   );
+    // };
+
+    // };
+
+
+    // displayLocation = (latitude,longitude) => {
+
+    //   this.http.get('http://maps.googleapis.com/maps/api/geocode/json?latlng='+latitude+','+longitude+'&sensor=true')
+    //     .subscribe(
+      //     response => {
+
+      //         if(response.status == 200){
+      //             let data = response.json();
+      //             location['address'] =  data.results[0].formatted_address
+
+      //             let city = data.results[0].address_components.reduce((city, value) => {
+      //                if (value.types[0] == "locality") {
+      //                      city = value.long_name;
+      //                      location['city'] = city;
+      //                 }
+      //                if (value.types[0] == "postal_code") {
+      //                       let postal_code = value.long_name;
+      //                       location['postal_code'] = postal_code;
+      //                   }
+      //               return city;
+      //             }, '');
+      //         }
+      //         localStorage.setItem('location', JSON.stringify(location));
+      //         EmitterService.get("selectedCity").emit(location['city']);
+
+
+
+      // },
+    //     error => {
+    //     alert(error.text());
+    //   }
+    //   );
+    // };
 
 
 
@@ -120,7 +181,7 @@ export class nglocationService {
 
       options = {
             enableHighAccuracy: true,
-            timeout: 5000,
+            timeout: 10000,
             maximumAge: 0
           };
 

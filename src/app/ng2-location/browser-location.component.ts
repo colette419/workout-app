@@ -55,7 +55,19 @@ export class EmitterService {
   template:
   `
   <div>
-    <h3> Your location is: {{selectedCity}} </h3>
+    <h3> Your location is: {{userLocation}} </h3>
+  </div>
+  <div>
+    <h3> Your temperature is: {{selectedTemp}} </h3>
+  </div>
+  <div>
+    <h3> The weather is: {{selectedDescription}} </h3>
+  </div>
+  <div *ngIf="selectedIcon != null">
+  <img src="http://openweathermap.org/img/w/{{selectedIcon}}.png" alt="Description" />
+  </div>
+    <div *ngIf="selectedIcon == null">
+  <p>Icon loading...</p>
   </div>
   `,
   providers: [nglocationService],
@@ -77,19 +89,27 @@ export class ngSelectLocation implements OnInit {
       * @type {string}
       *
       */
-  public selectedCity: string;
+  public selectedTemp: string;
+  public selectedDescription: string;
+  public selectedIcon: string;
+  public userLocation: string;
+
 
   constructor(private _ngLocation: nglocationService) {
     _ngLocation.getCitydata();
-    EmitterService.get("selectedCity").subscribe(data =>{
-       this.selectedCity = data;
-       localStorage.setItem('city', this.selectedCity);
+    EmitterService.get("tempService").subscribe(data =>{
+       this.selectedTemp = data.main.temp;
+       this.selectedDescription = data.weather[0].description;
+       this.selectedIcon = data.weather[0].icon;
+    });
+    EmitterService.get("locationService").subscribe(data2 =>{
+       this.userLocation = data2;
     });
   }
 
   
 
   ngOnInit(){
-    this.selectedCity = localStorage.getItem('city');
+    
   }
 }
